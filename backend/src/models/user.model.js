@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         enum : ['active', 'suspended', 'banned'],
         default : 'active'
     },
-    isInstructurApproved : {
+    isInstructorApproved : {
         type : Boolean,
         default : false
     }
