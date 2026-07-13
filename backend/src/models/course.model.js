@@ -1,4 +1,3 @@
-import { text } from "express";
 import mongoose from "mongoose";
 
 const lectureSchema = new mongoose.Schema({
@@ -40,10 +39,10 @@ const sectionSchema = new mongoose.Schema({
         required : true
     },
     order : {
-        type : String,
+        type : Number,
         required : true
     },
-    lectures : {lectureSchema}
+    lectures : [lectureSchema]
 })
 
 const courseSchema = new mongoose.Schema({
@@ -64,7 +63,7 @@ const courseSchema = new mongoose.Schema({
         required : true,
         index : true
     },
-    sections : {sectionSchema},
+    sections : [sectionSchema],
     status : {
         type : String,
         enum : ["draft", "pending_review", "published", "rejected"],

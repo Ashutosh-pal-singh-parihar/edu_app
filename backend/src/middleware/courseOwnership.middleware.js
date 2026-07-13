@@ -7,7 +7,11 @@ export const checkCourseOwnership = async (req, res, next)=>{
             return res.status(404).json({message : "course not found"})
         }
 
-        if ( course.instructor.toString() !== req.user._id.toString() ){
+        const isOwner =  course.instructor.toString() === req.user._id.toString() 
+
+        const isAdmin = req.user.role === 'admin'
+
+        if (!isOwner || !isAdmin){
             return res.status(403).json({ message : "you do not own this course" })
         }
 
