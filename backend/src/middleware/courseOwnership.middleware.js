@@ -1,4 +1,4 @@
-import { courseModel } from "../models/course.model";
+import { courseModel } from "../models/course.model.js";
 
 export const checkCourseOwnership = async (req, res, next)=>{
     try {

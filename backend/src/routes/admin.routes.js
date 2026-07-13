@@ -1,4 +1,5 @@
 import express from 'express'
+
 import { authMiddleware, restrictTo } from '../middleware/user.middleware.js'
 import { approveInstructor } from '../controllers/admin.controller.js'
 
