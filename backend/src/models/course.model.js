@@ -1,3 +1,4 @@
+import { string } from "joi";
 import mongoose from "mongoose";
 
 const lectureSchema = new mongoose.Schema({
@@ -18,6 +19,9 @@ const lectureSchema = new mongoose.Schema({
     },
     pdfUrl : {
         type : String
+    },
+    pdfPublicId : {
+        type : string
     },
     duration : {
         type : Number,
@@ -57,6 +61,7 @@ const courseSchema = new mongoose.Schema({
     },
     price : { type : Number, required : true, default : 0, min : 0 },
     thumbnailUrl : { type : String },
+    thumbnailPublicId : { type : string },
     instructor : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User',

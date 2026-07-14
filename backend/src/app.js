@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser'
 import { userRouter } from './routes/user.routes.js'
 import { adminRouter } from './routes/admin.routes.js'
 import { courseRouter } from './routes/course.routes.js'
+import { uploadRouter } from './routes/upload.routes.js'
 
 const app = express()
 
@@ -15,6 +16,7 @@ app.use(cookieParser())
 app.use('/api/users', userRouter)
 app.use('/api/admins', adminRouter)
 app.use('/api/courses', courseRouter)
+app.use('/api/courses', uploadRouter)
 
 export {
     app

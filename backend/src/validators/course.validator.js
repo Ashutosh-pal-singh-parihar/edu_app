@@ -4,7 +4,7 @@ export const createCourseSchema = Joi.object({
     title : Joi.string().min(5).max(100).required() ,
     description : Joi.string().min(5).required(),
     category : Joi.string().required(),
-    level : Joi.string.valid('beginner', 'intermediate', 'advanced'),
+    level : Joi.string().valid('beginner', 'intermediate', 'advanced'),
     price : Joi.number().min(0).required()
 })
 
