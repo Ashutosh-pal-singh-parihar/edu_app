@@ -1,3 +1,4 @@
+import { object } from "joi";
 import { courseModel } from "../models/course.model.js";
 
 export const getAllCourses = async (req, res, next)=>{
@@ -131,4 +132,61 @@ export const publishCourse = async (req, res, next)=>{
         return res.status(400).json({ message : 'error while publishing course' })
     }
 
+}
+
+
+export const addSection = async (req, res, next)=>{
+    try {
+        req.course.sections.push(req.body)
+        await req.course.save()
+
+        return res.status(201).json({
+            message : 'section added successfully', 
+            course : req.course 
+        })
+    } catch (error) {
+        return res.status(400).json({ message : 'error adding section' })
+    }
+}
+
+export const updateSection = async (req, res, next)=>{
+    try {
+        const section = req.course.sections.id(req.params.sectionId)
+
+        if(!section){
+            return res.status(404).json({ message : 'section not found' })
+        }
+
+        Object.assign(section, req.body)
+        await req.course.save()
+
+        return res.status(200).json({
+            message : 'section updated successfully',
+            course : req.course
+        })
+
+    } catch (error) {
+        return res.status(400).json({ message : 'error updating section' })        
+    }
+}
+
+export const deleteSection = async (req, res, next)=>{
+    try {
+        const section = req.course.sections.id(req.params.sectionId)
+        
+        if(!section){
+            return res.status(400).json({ message : 'section not found' })
+        }
+        
+        section.deleteOne()
+
+        await req.course.save()
+
+        return res.status(200).json({
+            message : 'section deleted successfully',
+            course : req.course
+        })
+    } catch (error) {
+        return res.status(400).json({ message : 'error deleting section' })       
+    }
 }

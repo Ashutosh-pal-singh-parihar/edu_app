@@ -12,7 +12,13 @@ import {
     updateCourse,
     deleteCourse,
     submitForReview,
-    publishCourse
+    publishCourse,
+    addSection,
+    updateSection,
+    deleteSection,
+    addLecture,
+    updateLecture,
+    deleteLecture
 } from '../controllers/course.controller.js'
 
 const courseRouter = express.Router()
@@ -26,6 +32,11 @@ courseRouter.patch('/:courseId', authMiddleware, restrictTo('instructor', 'admin
 courseRouter.delete('/:courseId', authMiddleware, restrictTo('instructor', 'admin'), checkCourseOwnership, deleteCourse)
 courseRouter.patch('/:courseId/submit', authMiddleware, restrictTo('instructor'), checkCourseOwnership, submitForReview)
 courseRouter.patch('/:courseId/publish', authMiddleware, restrictTo('admin'), checkCourseOwnership, publishCourse)
+
+courseRouter.post('/:courseId/sections', authMiddleware, restrictTo('instructor'), validate(sectionSchema), checkCourseOwnership, addSection)
+courseRouter.patch('/:courseId/sections/:sectionId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, updateSection)
+courseRouter.delete('/:courseId/sections/:sectionId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, deleteSection)
+
 
 export {
     courseRouter
