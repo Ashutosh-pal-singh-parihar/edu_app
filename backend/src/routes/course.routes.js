@@ -37,6 +37,9 @@ courseRouter.post('/:courseId/sections', authMiddleware, restrictTo('instructor'
 courseRouter.patch('/:courseId/sections/:sectionId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, updateSection)
 courseRouter.delete('/:courseId/sections/:sectionId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, deleteSection)
 
+courseRouter.post('/:courseId/sections/:sectionId/lectures', authMiddleware, restrictTo('instructor'), validate(lectureSchema), checkCourseOwnership, addLecture)
+courseRouter.patch('/:courseId/sections/:sectionId/lectures/:lectureId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, updateLecture)
+courseRouter.delete('/:courseId/sections/:sectionId/lectures/:lectureId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, deleteLecture)
 
 export {
     courseRouter

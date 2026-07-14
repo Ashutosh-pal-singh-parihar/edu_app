@@ -190,3 +190,77 @@ export const deleteSection = async (req, res, next)=>{
         return res.status(400).json({ message : 'error deleting section' })       
     }
 }
+
+export const addLecture = async (req, res, next)=>{
+    try {
+        const section = req.course.sections.id(req.params.sectionId)
+
+        if(!section){
+            return res.status(404).json({ message : 'section not found' })
+        }
+
+        section.lectures.push(req.body)
+
+        await req.course.save()
+
+        return res.status(201).json({
+            message : 'lecture added successfully',
+            course : req.course
+        })
+    } catch (error) {
+        return res.status(400).json({ message : 'error adding lecture' })
+    }
+}
+
+export const updateLecture = async (req, res, next)=>{
+    try {
+        const section = req.course.sections.id(req.params.sectionId)
+
+        if(!section){
+            return res.status(404).json({ message : 'section not found' })
+        }
+
+        const lecture = section.lectures.id(req.params.lectureId)
+        if(!lecture){
+            return res.status(404).json({ message : 'lecture not found' })
+        }
+
+        Object.assign(lecture, req.body)
+
+        await req.course.save()
+
+        return res.status(200).json({
+            message : 'lecture updated successfully',
+            course : req.course
+        })
+
+    } catch (error) {
+        return res.status(400).json({ message : 'error updating lecture' })
+    }
+}
+
+export const deleteLecture = async (req, res, next)=>{
+    try {
+        const section = req.course.sections.id(req.params.sectionId)
+
+        if(!section){
+            return res.status(404).json({ message : 'section not found' })
+        }
+
+        const lecture = section.lectures.id(req.params.lectureId)
+        if(!lecture){
+            return res.status(404).json({ message : 'lecture not found' })
+        }
+
+        lecture.deleteOne()
+
+        await req.course.save()
+
+        return res.status(200).json({
+            message : 'lecture deleted successfully',
+            course : req.course
+        })
+    } catch (error) {
+        return res.status(400).json({ message : 'error deleting lecture' })
+    }
+}
