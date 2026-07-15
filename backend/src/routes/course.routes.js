@@ -1,7 +1,7 @@
 import express from 'express'
 
 import { validate } from '../middleware/validate.middleware.js'
-import { authMiddleware, restrictTo } from '../middleware/user.middleware.js'
+import { authMiddleware, optionalAuth, restrictTo } from '../middleware/user.middleware.js'
 import { checkCourseOwnership } from '../middleware/courseOwnership.middleware.js'
 import { createCourseSchema, updateCourseSchema, sectionSchema, lectureSchema } from '../validators/course.validator.js'
 import { 
@@ -18,7 +18,8 @@ import {
     deleteSection,
     addLecture,
     updateLecture,
-    deleteLecture
+    deleteLecture,
+    getSignedVideoUrl
 } from '../controllers/course.controller.js'
 
 const courseRouter = express.Router()
@@ -26,7 +27,7 @@ const courseRouter = express.Router()
 courseRouter.get('/', getAllCourses)
 courseRouter.get('/my/courses', authMiddleware, restrictTo('instructor'), getMyCourses)
 
-courseRouter.get('/:courseId', getCourseById)
+courseRouter.get('/:courseId', optionalAuth, getCourseById)
 courseRouter.post('/', authMiddleware, restrictTo('instructor'), validate(createCourseSchema), createCourse)
 courseRouter.patch('/:courseId', authMiddleware, restrictTo('instructor', 'admin'), checkCourseOwnership, validate(updateCourseSchema), updateCourse)
 courseRouter.delete('/:courseId', authMiddleware, restrictTo('instructor', 'admin'), checkCourseOwnership, deleteCourse)
@@ -40,6 +41,8 @@ courseRouter.delete('/:courseId/sections/:sectionId', authMiddleware, restrictTo
 courseRouter.post('/:courseId/sections/:sectionId/lectures', authMiddleware, restrictTo('instructor'), validate(lectureSchema), checkCourseOwnership, addLecture)
 courseRouter.patch('/:courseId/sections/:sectionId/lectures/:lectureId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, updateLecture)
 courseRouter.delete('/:courseId/sections/:sectionId/lectures/:lectureId', authMiddleware, restrictTo('instructor'), checkCourseOwnership, deleteLecture)
+
+courseRouter.get('/:courseId/lectures/:lectureId/stream-url', authMiddleware, getSignedVideoUrl)
 
 export {
     courseRouter

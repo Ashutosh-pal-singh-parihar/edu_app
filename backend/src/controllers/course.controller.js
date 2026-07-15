@@ -1,4 +1,6 @@
 import { courseModel } from "../models/course.model.js";
+import { enrollmentModel } from "../models/enrollement.model.js";
+import { generateSignedVideoUrl } from "../utils/generateSignedVideoUrl.js";
 
 export const getAllCourses = async (req, res, next)=>{
     const { search, category, level, minPrice, maxPrice, page = 1, limit=12 } = req.query
@@ -38,17 +40,41 @@ export const getAllCourses = async (req, res, next)=>{
 export const getCourseById = async (req, res, next)=>{
     try {
         const course = await courseModel.findById(req.params.courseId)
-        .populate('instructor', 'name bio')
+        .populate('instructor', 'firstname lastname bio')
 
         if(!course){
             return res.status(404).json({ message : 'course not found' })
         }
 
-        if( course.status !== 'published'){
+        const isOwner = req.user && course.instructor._id.toString() === req.user._id.toString();
+        const isAdmin = req.user && req.user.role === 'admin';
+
+
+        if( course.status !== 'published' && !isOwner && !isAdmin){
             return res.status(404).json({ message : 'course not found' })
         }
 
-        return res.status(200).json({ course })
+        let isEnrolled = false
+        if(req.user && req.user.role === 'student'){
+            const enrollment = await enrollmentModel.findOne({ student : req.user._id, course : course._id })
+            isEnrolled = !!enrollment
+        }
+
+         const courseObj = course.toObject();
+        if (!isOwner && !isAdmin && !isEnrolled) {
+            courseObj.sections = courseObj.sections.map((section) => ({
+            ...section,
+            lectures: section.lectures.map((lecture) => ({
+                ...lecture,
+                videoUrl: lecture.isPreview ? lecture.videoUrl : undefined,
+                pdfUrl: lecture.isPreview ? lecture.pdfUrl : undefined,
+            })),
+            }));
+        }
+
+
+
+        return res.status(200).json({ course : courseObj, isEnrolled })
     } catch (error) {
         return res.status(400).json({ message : 'error fetching course' })
     }
@@ -261,5 +287,31 @@ export const deleteLecture = async (req, res, next)=>{
         })
     } catch (error) {
         return res.status(400).json({ message : 'error deleting lecture' })
+    }
+}
+
+export const getSignedVideoUrl = async (req, res, next)=>{
+    try {
+        const course = await Course.findById(req.params.courseId);
+        if (!course) return res.stutus(404).json({ message : 'course not found' })
+
+        const lecture = course.sections
+            .flatMap((s) => s.lectures)
+            .find((l) => l._id.toString() === req.params.lectureId);
+        if (!lecture) return res.stutus(404).json({ message : 'lecture not found' })
+
+        const isOwner = course.instructor.toString() === req.user._id.toString();
+        const isAdmin = req.user.role === 'admin';
+
+        if (!lecture.isPreview && !isOwner && !isAdmin) {
+            const enrollment = await Enrollment.findOne({ student: req.user._id, course: course._id });
+            if (!enrollment) return res.stutus(403).json({ message : 'You must enroll in this course to watch this lecture' })
+        }
+
+        const signedUrl = generateSignedVideoUrl(lecture.videoPublicId);
+
+        return res.status(200).json({ url : signedUrl })
+    } catch (error) {
+        return res.status(400).json({ message : 'error getting signed url' })
     }
 }

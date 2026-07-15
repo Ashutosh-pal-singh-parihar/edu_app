@@ -17,6 +17,7 @@ const videoStorage = new CloudinaryStorage({
     params : {
         folder : 'lms/videos',
         resource_type : 'video',
+        type : 'authenticated',
         allowed_formats : ['mp4', 'mov', 'webm']
     }
 })

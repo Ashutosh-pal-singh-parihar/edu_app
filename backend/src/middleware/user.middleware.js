@@ -42,3 +42,36 @@ export const restrictTo = (...roles) => (req, res, next) =>{
     }
     next()
 }
+
+export const optionalAuth = async (req, res, next)=>{
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1]
+
+    if(!token){
+        return next()
+    }
+
+    const isBlacklisted = await blacklistTokenModel.findOne({ token : token })
+
+    if(isBlacklisted){
+        return res.status(401).json({ message : 'unauthorized' })
+    }
+
+    try {
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET)
+        const user = await userModel.findById( decoded._id )
+
+        if(!user){
+            return res.status(401).json({  message : 'user not exist' })
+        }
+
+        if(user.status !== 'active' ){
+            return res.status(401).json({ message : 'unauthorized' })
+        }
+
+        req.user = user
+        return next()
+
+    } catch (error) {
+        return next()
+    }
+}
