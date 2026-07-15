@@ -292,20 +292,20 @@ export const deleteLecture = async (req, res, next)=>{
 
 export const getSignedVideoUrl = async (req, res, next)=>{
     try {
-        const course = await Course.findById(req.params.courseId);
-        if (!course) return res.stutus(404).json({ message : 'course not found' })
+        const course = await courseModel.findById(req.params.courseId);
+        if (!course) return res.status(404).json({ message : 'course not found' })
 
         const lecture = course.sections
             .flatMap((s) => s.lectures)
             .find((l) => l._id.toString() === req.params.lectureId);
-        if (!lecture) return res.stutus(404).json({ message : 'lecture not found' })
+        if (!lecture) return res.status(404).json({ message : 'lecture not found' })
 
         const isOwner = course.instructor.toString() === req.user._id.toString();
         const isAdmin = req.user.role === 'admin';
 
         if (!lecture.isPreview && !isOwner && !isAdmin) {
-            const enrollment = await Enrollment.findOne({ student: req.user._id, course: course._id });
-            if (!enrollment) return res.stutus(403).json({ message : 'You must enroll in this course to watch this lecture' })
+            const enrollment = await enrollmentModel.findOne({ student: req.user._id, course: course._id });
+            if (!enrollment) return res.status(403).json({ message : 'You must enroll in this course to watch this lecture' })
         }
 
         const signedUrl = generateSignedVideoUrl(lecture.videoPublicId);
